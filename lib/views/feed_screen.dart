@@ -1,13 +1,56 @@
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'package:visibility_detector/visibility_detector.dart';
-
 import 'chat_screen.dart';
+import 'package:instagram_clone/models/user.dart';
+import 'package:instagram_clone/models/post.dart'; // Import your Post model
 
-class FeedScreen extends StatelessWidget{
+class FeedScreen extends StatefulWidget {
   const FeedScreen({super.key});
+
+  @override
+  _FeedScreenState createState() => _FeedScreenState();
+}
+
+class _FeedScreenState extends State<FeedScreen> {
+  late Dio _dio;
+  List<User> users = [];
+  List<Post> posts = []; // To hold the fetched posts
+
+  @override
+  void initState() {
+    super.initState();
+    _dio = Dio();
+    _fetchUsers();
+    _fetchPosts(); // Fetch posts on screen initialization
+  }
+
+  Future<void> _fetchUsers() async {
+    try {
+      Response response = await _dio.get('https://crudcrud.com/api/83de555d7762468692cd5890975edd16/users');
+      List<dynamic> usersData = response.data[0]['users'];
+      setState(() {
+        users = usersData.map((userJson) => User.fromJson(userJson)).toList();
+      });
+    } catch (e) {
+      print("Error fetching users: $e");
+    }
+  }
+
+  Future<void> _fetchPosts() async {
+    try {
+      Response response = await _dio.get('https://crudcrud.com/api/83de555d7762468692cd5890975edd16/posts');
+      List<dynamic> postsData = response.data[0]['posts'];
+      setState(() {
+        posts = postsData.map((postJson) => Post.fromJson(postJson)).toList();
+      });
+    } catch (e) {
+      print("Error fetching posts: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,9 +60,12 @@ class FeedScreen extends StatelessWidget{
         actions: [
           IconButton(onPressed: () {}, icon: Icon(Icons.favorite_border)),
           SizedBox(width: 5),
-          IconButton(onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context)=>ChatScreen()));
-          }, icon: ImageIcon(AssetImage("assets/images/messenger.png"),size: 32)),
+          IconButton(
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen()));
+            },
+            icon: ImageIcon(AssetImage("assets/images/messenger.png"), size: 32),
+          ),
           SizedBox(width: 10),
         ],
       ),
@@ -28,43 +74,44 @@ class FeedScreen extends StatelessWidget{
           children: [
             // Stories Section
             SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: List.generate(
-                    8,
-                        (index) {
-                      return Container(
-                          padding: EdgeInsets.all(10),
-                          child: Column(
-                            children: [
-                              CircleAvatar(
-                                radius: 35,
-                                backgroundImage: AssetImage(
-                                    "assets/images/insta_story.png"),
-                                child: CircleAvatar(
-                                  radius: 30,
-                                  backgroundImage: AssetImage(
-                                      "assets/images/insta_logo.png"),
-                                ),
-                              ),
-                              SizedBox(height: 10),
-                              Text(
-                                "Profile Name",
-                                style: TextStyle(
-                                    fontSize: 12, color: Colors.black87),
-                              )
-                            ],
-                          ));
-                    },
-                  ),
-                )),
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: List.generate(
+                  users.length,
+                      (index) {
+                    User user = users[index];
+                    return Container(
+                      padding: EdgeInsets.all(10),
+                      child: Column(
+                        children: [
+                          CircleAvatar(
+                            radius: 35,
+                            backgroundImage: AssetImage("assets/images/insta_story.png"),
+                            child: CircleAvatar(
+                              radius: 30,
+                              backgroundImage: NetworkImage(user.photoUrl),
+                            ),
+                          ),
+                          SizedBox(height: 10),
+                          Text(
+                            user.username,
+                            style: TextStyle(fontSize: 12, color: Colors.black87),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
             Divider(),
 
-            // Posts Section
+            // Posts Section (Dynamic Posts)
             Column(
               children: List.generate(
-                5, // Create 6 posts
+                posts.length, // Dynamically generate posts
                     (index) {
+                  Post post = posts[index];
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -73,28 +120,26 @@ class FeedScreen extends StatelessWidget{
                           padding: EdgeInsets.all(10),
                           child: CircleAvatar(
                             radius: 14,
-                            backgroundImage:
-                            AssetImage("assets/images/insta_story.png"),
+                            backgroundImage: AssetImage("assets/images/insta_story.png"),
                             child: CircleAvatar(
                               radius: 12,
-                              backgroundImage:
-                              AssetImage("assets/images/insta_logo.png"),
+                              backgroundImage: NetworkImage(users[index].photoUrl),
                             ),
                           ),
                         ),
-                        Text("Profile"),
+                        Text(users[index].username),
                         Spacer(),
                         IconButton(
                           icon: Icon(Icons.more_vert),
                           onPressed: () {},
                         )
                       ]),
-                      index % 3 == 0 // Check if it's a single image post
-                          ? Image.asset("assets/images/insta_logo.png")
-                          : index % 3 == 1 // Check if it's an image carousel
-                          ? ImageCarousel()
-                          : index % 3 == 2 // Check if it's a video post
-                          ? VideoPost()
+                      post.type == "image" // Image post
+                          ? Image.network(post.mediaUrl)
+                          : post.type == "carousel" // Carousel post
+                          ? ImageCarousel(carouselImages: post.carouselImages)
+                          : post.type == "video" // Video post
+                          ? VideoPost(videoUrl: post.mediaUrl)
                           : SizedBox(),
                       Row(
                         children: [
@@ -128,7 +173,7 @@ class FeedScreen extends StatelessWidget{
                                     children: [
                                       TextSpan(text: 'Liked by'),
                                       TextSpan(
-                                          text: ' Profile Name',
+                                          text: ' ${users[index+1].username}',
                                           style: TextStyle(
                                               fontWeight: FontWeight.bold)),
                                       TextSpan(text: " and"),
@@ -143,16 +188,16 @@ class FeedScreen extends StatelessWidget{
                                     style: TextStyle(color: Colors.black),
                                     children: [
                                       TextSpan(
-                                        text: " Profile Name",
+                                        text: " ${users[index].username} ",
                                         style:
                                         TextStyle(fontWeight: FontWeight.bold),
                                       ),
                                       TextSpan(
                                           text:
-                                          " Had fun yesterday at the amazing theatre..Looking forward to more times like this!"),
+                                          post.caption),
                                     ])),
                             SizedBox(height: 10),
-                            Text("View all 43 comments",
+                            Text("13 hours ago",
                                 style: TextStyle(color: Colors.black38))
                           ],
                         ),
@@ -165,8 +210,7 @@ class FeedScreen extends StatelessWidget{
           ],
         ),
       ),
-      bottomNavigationBar:
-      CupertinoTabBar(height: 80, activeColor: Colors.black, items: [
+      bottomNavigationBar: CupertinoTabBar(height: 80, activeColor: Colors.black, items: [
         BottomNavigationBarItem(
           icon: Icon(
             Icons.home_filled,
@@ -180,7 +224,7 @@ class FeedScreen extends StatelessWidget{
             icon: Icon(Icons.add_circle_outline, color: Colors.black),
             label: ''),
         BottomNavigationBarItem(
-            icon: ImageIcon(AssetImage("assets/images/video.png"),color: Colors.black,size: 26,),
+            icon: ImageIcon(AssetImage("assets/images/video.png"), color: Colors.black, size: 26,),
             label: ''),
         BottomNavigationBarItem(
             icon: Icon(Icons.account_circle_outlined, color: Colors.black),
@@ -191,6 +235,10 @@ class FeedScreen extends StatelessWidget{
 }
 
 class ImageCarousel extends StatefulWidget {
+  final List<String> carouselImages;
+
+  ImageCarousel({required this.carouselImages});
+
   @override
   _ImageCarouselState createState() => _ImageCarouselState();
 }
@@ -200,158 +248,146 @@ class _ImageCarouselState extends State<ImageCarousel> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        // Carousel
-        CarouselSlider(
-          items: [
-            Image.asset("assets/images/insta_logo.png"),
-            Image.asset("assets/images/insta_story.png"),
-            Image.asset("assets/images/insta_logo.png"),
-          ],
-          options: CarouselOptions(
-            enableInfiniteScroll: false, // Disable infinite scroll
-            enlargeCenterPage: true, // Center the current image
-            onPageChanged: (index, reason) {
-              setState(() {
-                _currentIndex = index;
-              });
-            },
-            scrollPhysics: BouncingScrollPhysics(),
-          ),
-        ),
-
-        // Image index (1/3, 2/3, etc.)
-        Positioned(
-          top: 10,
-          right: 10,
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.5), // Translucent black background
-              borderRadius: BorderRadius.circular(20), // Pill shape
+    return VisibilityDetector(
+      key: Key('carousel-visibility'),
+      onVisibilityChanged: (visibilityInfo) {
+        double visiblePercentage = visibilityInfo.visibleFraction * 100;
+        // You can trigger any behavior based on visibility
+        print('Carousel visible: $visiblePercentage%');
+      },
+      child: Stack(
+        children: [
+          CarouselSlider(
+            items: widget.carouselImages
+                .map((imageUrl) => Image.network(imageUrl))
+                .toList(),
+            options: CarouselOptions(
+              enableInfiniteScroll: false,
+              enlargeCenterPage: true,
+              onPageChanged: (index, reason) {
+                setState(() {
+                  _currentIndex = index;
+                });
+              },
+              scrollPhysics: BouncingScrollPhysics(),
             ),
-            child: Text(
-              '${_currentIndex + 1}/3',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
+          ),
+
+          // Image index (1/3, 2/3, etc.)
+          Positioned(
+            top: 10,
+            right: 10,
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.5), // Translucent black background
+                borderRadius: BorderRadius.circular(20), // Pill shape
               ),
-            ),
-          ),
-        ),
-
-        // Dots Indicator
-        Positioned(
-          bottom: 10,
-          left: 0,
-          right: 0,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(
-              3,
-                  (index) => Container(
-                margin: EdgeInsets.symmetric(horizontal: 5),
-                height: 8,
-                width: 8,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: _currentIndex == index
-                      ? Colors.blue
-                      : Colors.grey, // Change color based on current image
+              child: Text(
+                '${_currentIndex + 1}/${widget.carouselImages.length}',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
                 ),
               ),
             ),
           ),
-        ),
-      ],
+
+          // Dots Indicator
+          Positioned(
+            bottom: 10,
+            left: 0,
+            right: 0,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(
+                widget.carouselImages.length,
+                    (index) => Container(
+                  margin: EdgeInsets.symmetric(horizontal: 5),
+                  height: 8,
+                  width: 8,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: _currentIndex == index
+                        ? Colors.blue
+                        : Colors.grey, // Change color based on current image
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
 
-
 class VideoPost extends StatefulWidget {
+  final String videoUrl;
+
+  VideoPost({required this.videoUrl});
+
   @override
   _VideoPostState createState() => _VideoPostState();
 }
 
 class _VideoPostState extends State<VideoPost> {
   late VideoPlayerController _controller;
-  bool _isPlaying = false;
-  bool _isInitialized = false; // Flag to track video initialization
+  late Future<void> _initializeVideoPlayerFuture;
+
+  bool _isVisible = false; // To track the visibility state
 
   @override
   void initState() {
     super.initState();
-    // Initialize the controller with the video URL
-    _controller = VideoPlayerController.network(
-        'https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4') // New test video URL
-      ..addListener(() {
-        // Listen for initialization and changes
-        if (_controller.value.isInitialized && !_isInitialized) {
-          setState(() {
-            _isInitialized = true;
-          });
-        }
-      })
-      ..initialize().then((_) {
-        setState(() {}); // Rebuild when initialization is complete
-      }).catchError((e) {
-        // Handle errors in initialization
-        print("Error initializing video: $e");
-      });
+    _controller = VideoPlayerController.network(widget.videoUrl);
+    _initializeVideoPlayerFuture = _controller.initialize();
+    _controller.setLooping(true); // Optional: loop the video
   }
 
   @override
   void dispose() {
     super.dispose();
-    _controller.dispose(); // Dispose the controller when done
+    _controller.dispose(); // Don't forget to dispose the controller
+  }
+
+  void _onVisibilityChanged(VisibilityInfo visibilityInfo) {
+    double visibleFraction = visibilityInfo.visibleFraction;
+    if (visibleFraction > 0.5 && !_controller.value.isPlaying) {
+      // Play video when at least 50% is visible
+      _controller.play();
+      setState(() {
+        _isVisible = true;
+      });
+    } else if (visibleFraction <= 0.5 && _controller.value.isPlaying) {
+      // Pause video when less than 50% is visible
+      _controller.pause();
+      setState(() {
+        _isVisible = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return VisibilityDetector(
-      key: Key('video-post-key'),
-      onVisibilityChanged: (visibilityInfo) {
-        double visiblePercentage = visibilityInfo.visibleFraction * 100;
-        // Play the video when it's at least 50% visible
-        if (visiblePercentage > 50) {
-          if (!_isPlaying) {
-            _controller.play();
-            setState(() {
-              _isPlaying = true;
-            });
+      key: Key('video-visibility-${widget.videoUrl}'),
+      onVisibilityChanged: _onVisibilityChanged,
+      child: FutureBuilder<void>(
+        future: _initializeVideoPlayerFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            // If the video is initialized, show the VideoPlayer widget
+            return AspectRatio(
+              aspectRatio: _controller.value.aspectRatio,
+              child: VideoPlayer(_controller),
+            );
+          } else {
+            // While the video is initializing, show a loading spinner
+            return Center(child: CircularProgressIndicator());
           }
-        } else {
-          if (_isPlaying) {
-            _controller.pause();
-            setState(() {
-              _isPlaying = false;
-            });
-          }
-        }
-      },
-      child: _isInitialized
-          ? GestureDetector(
-        onTap: () {
-          setState(() {
-            if (_isPlaying) {
-              _controller.pause();
-            } else {
-              _controller.play();
-            }
-            _isPlaying = !_isPlaying;
-          });
         },
-        child: AspectRatio(
-          aspectRatio: _controller.value.aspectRatio,
-          child: VideoPlayer(_controller),
-        ),
-      )
-          : SizedBox(
-        height: 200,
-        child: Center(child: CircularProgressIndicator()),
       ),
     );
   }
