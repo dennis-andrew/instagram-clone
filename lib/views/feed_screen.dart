@@ -348,7 +348,6 @@ class _VideoPostState extends State<VideoPost> {
   void _onVisibilityChanged(VisibilityInfo visibilityInfo) {
     double visibleFraction = visibilityInfo.visibleFraction;
     if (visibleFraction > 0.5 && !_controller.value.isPlaying) {
-      // Play video when at least 50% is visible
       _controller.play();
       setState(() {
         _isVisible = true;
