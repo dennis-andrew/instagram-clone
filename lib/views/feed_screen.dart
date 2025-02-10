@@ -6,7 +6,7 @@ import 'package:video_player/video_player.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'chat_screen.dart';
 import 'package:instagram_clone/models/user.dart';
-import 'package:instagram_clone/models/post.dart'; // Import your Post model
+import 'package:instagram_clone/models/post.dart';
 
 class FeedScreen extends StatefulWidget {
   const FeedScreen({super.key});
@@ -18,14 +18,14 @@ class FeedScreen extends StatefulWidget {
 class _FeedScreenState extends State<FeedScreen> {
   late Dio _dio;
   List<User> users = [];
-  List<Post> posts = []; // To hold the fetched posts
+  List<Post> posts = [];
 
   @override
   void initState() {
     super.initState();
     _dio = Dio();
     _fetchUsers();
-    _fetchPosts(); // Fetch posts on screen initialization
+    _fetchPosts();
   }
 
   Future<void> _fetchUsers() async {
@@ -56,7 +56,7 @@ class _FeedScreenState extends State<FeedScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Image.asset("assets/images/insta_logo.png", height: 60),
+        title: Image.asset("assets/images/insta_logo.png", height: 50),
         actions: [
           IconButton(onPressed: () {}, icon: Icon(Icons.favorite_border)),
           SizedBox(width: 5),
@@ -72,7 +72,6 @@ class _FeedScreenState extends State<FeedScreen> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Stories Section
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
@@ -105,11 +104,9 @@ class _FeedScreenState extends State<FeedScreen> {
               ),
             ),
             Divider(),
-
-            // Posts Section (Dynamic Posts)
             Column(
               children: List.generate(
-                posts.length, // Dynamically generate posts
+                posts.length,
                     (index) {
                   Post post = posts[index];
                   return Column(
@@ -134,27 +131,30 @@ class _FeedScreenState extends State<FeedScreen> {
                           onPressed: () {},
                         )
                       ]),
-                      post.type == "image" // Image post
+                      post.type == "image"
                           ? Image.network(post.mediaUrl)
-                          : post.type == "carousel" // Carousel post
+                          : post.type == "carousel"
                           ? ImageCarousel(carouselImages: post.carouselImages)
-                          : post.type == "video" // Video post
+                          : post.type == "video"
                           ? VideoPost(videoUrl: post.mediaUrl)
                           : SizedBox(),
                       Row(
                         children: [
                           IconButton(
-                            icon: Icon(Icons.favorite_border),
+                            icon: ImageIcon(AssetImage("assets/images/heart.png"),size: 24,),
                             onPressed: () {},
                           ),
+                          Text(post.likes.toString()),
                           IconButton(
-                            icon: Icon(Icons.chat_bubble_outline),
+                            icon: ImageIcon(AssetImage("assets/images/chat.png"),size: 24,),
                             onPressed: () {},
                           ),
+                          Text(post.comments.toString()),
                           IconButton(
-                            icon: Icon(Icons.label_outline),
+                            icon: ImageIcon(AssetImage("assets/images/send.png"),size: 24),
                             onPressed: () {},
                           ),
+                          Text(post.shares.toString()),
                           Spacer(),
                           IconButton(
                             icon: Icon(Icons.bookmark_border),
@@ -210,7 +210,7 @@ class _FeedScreenState extends State<FeedScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: CupertinoTabBar(height: 80, activeColor: Colors.black, items: [
+      bottomNavigationBar: CupertinoTabBar(height: 60, activeColor: Colors.black, items: [
         BottomNavigationBarItem(
           icon: Icon(
             Icons.home_filled,
@@ -251,9 +251,6 @@ class _ImageCarouselState extends State<ImageCarousel> {
     return VisibilityDetector(
       key: Key('carousel-visibility'),
       onVisibilityChanged: (visibilityInfo) {
-        double visiblePercentage = visibilityInfo.visibleFraction * 100;
-        // You can trigger any behavior based on visibility
-        print('Carousel visible: $visiblePercentage%');
       },
       child: Stack(
         children: [
@@ -272,16 +269,14 @@ class _ImageCarouselState extends State<ImageCarousel> {
               scrollPhysics: BouncingScrollPhysics(),
             ),
           ),
-
-          // Image index (1/3, 2/3, etc.)
           Positioned(
             top: 10,
             right: 10,
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.5), // Translucent black background
-                borderRadius: BorderRadius.circular(20), // Pill shape
+                color: Colors.black.withOpacity(0.5),
+                borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
                 '${_currentIndex + 1}/${widget.carouselImages.length}',
@@ -293,8 +288,6 @@ class _ImageCarouselState extends State<ImageCarousel> {
               ),
             ),
           ),
-
-          // Dots Indicator
           Positioned(
             bottom: 10,
             left: 0,
@@ -311,7 +304,7 @@ class _ImageCarouselState extends State<ImageCarousel> {
                     shape: BoxShape.circle,
                     color: _currentIndex == index
                         ? Colors.blue
-                        : Colors.grey, // Change color based on current image
+                        : Colors.grey,
                   ),
                 ),
               ),
@@ -336,20 +329,20 @@ class _VideoPostState extends State<VideoPost> {
   late VideoPlayerController _controller;
   late Future<void> _initializeVideoPlayerFuture;
 
-  bool _isVisible = false; // To track the visibility state
+  bool _isVisible = false;
 
   @override
   void initState() {
     super.initState();
     _controller = VideoPlayerController.network(widget.videoUrl);
     _initializeVideoPlayerFuture = _controller.initialize();
-    _controller.setLooping(true); // Optional: loop the video
+    _controller.setLooping(true);
   }
 
   @override
   void dispose() {
     super.dispose();
-    _controller.dispose(); // Don't forget to dispose the controller
+    _controller.dispose();
   }
 
   void _onVisibilityChanged(VisibilityInfo visibilityInfo) {
@@ -361,7 +354,6 @@ class _VideoPostState extends State<VideoPost> {
         _isVisible = true;
       });
     } else if (visibleFraction <= 0.5 && _controller.value.isPlaying) {
-      // Pause video when less than 50% is visible
       _controller.pause();
       setState(() {
         _isVisible = false;
@@ -378,13 +370,11 @@ class _VideoPostState extends State<VideoPost> {
         future: _initializeVideoPlayerFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            // If the video is initialized, show the VideoPlayer widget
             return AspectRatio(
               aspectRatio: _controller.value.aspectRatio,
               child: VideoPlayer(_controller),
             );
           } else {
-            // While the video is initializing, show a loading spinner
             return Center(child: CircularProgressIndicator());
           }
         },

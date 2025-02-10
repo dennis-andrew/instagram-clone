@@ -17,7 +17,6 @@ class ChatScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Search Bar
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextField(
@@ -39,7 +38,7 @@ class ChatScreen extends StatelessWidget {
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: List.generate(
-                    8, // Number of online users
+                    8,
                     (index) {
                       return Container(
                         margin: EdgeInsets.symmetric(horizontal: 8),
@@ -48,12 +47,12 @@ class ChatScreen extends StatelessWidget {
                             CircleAvatar(
                               radius: 30,
                               backgroundImage: AssetImage(
-                                "assets/images/insta_logo.png", // Replace with actual user profile images
+                                "assets/images/insta_logo.png",
                               ),
                             ),
                             SizedBox(height: 5),
                             Text(
-                              "User ${index + 1}", // Example user names
+                              "User ${index + 1}",
                               style: TextStyle(
                                   fontSize: 12, color: Colors.black87),
                             ),
@@ -84,7 +83,7 @@ class ChatScreen extends StatelessWidget {
             ListView.builder(
               shrinkWrap: true,
               physics: NeverScrollableScrollPhysics(),
-              itemCount: 20, // Number of chat items
+              itemCount: 20,
               itemBuilder: (context, index) {
                 return Column(
                   children: [
@@ -106,8 +105,6 @@ class ChatScreen extends StatelessWidget {
                             size: 35,
                           )),
                       onTap: () {
-                        // Navigate to the specific chat
-                        // Navigator.push(context, MaterialPageRoute(builder: (context) => SpecificChatScreen()));
                       },
                     ),
                     SizedBox(
