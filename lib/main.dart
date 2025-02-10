@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:instagram_clone/views/feed_screen.dart';
 import 'dart:io';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class MyHttpOverrides extends HttpOverrides{
   @override
@@ -20,22 +21,28 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      themeMode: ThemeMode.light,
-      theme: ThemeData(
-          brightness: Brightness.light,
-          iconButtonTheme: IconButtonThemeData(
-            style: IconButton.styleFrom(
-              foregroundColor: Colors.black,
-              iconSize: 30,
-            ),
-          )),
-      title: "Instagram",
-      debugShowCheckedModeBanner: false,
-      home: FeedScreen()
+    return ScreenUtilInit(
+      designSize: Size(375, 812),
+      builder: (context, child) {
+        return MaterialApp(
+          themeMode: ThemeMode.light,
+          theme: ThemeData(
+              brightness: Brightness.light,
+              iconButtonTheme: IconButtonThemeData(
+                style: IconButton.styleFrom(
+                  foregroundColor: Colors.black,
+                  iconSize: 30.sp,
+                ),
+              )),
+          title: "Instagram",
+          debugShowCheckedModeBanner: false,
+          home: FeedScreen(),
+        );
+      },
     );
   }
 }
+
 
 // {
 // "users": [

@@ -250,7 +250,7 @@ class ImageCarousel extends StatelessWidget {
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.5),
+                    color: Colors.black.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -305,35 +305,32 @@ class VideoPost extends StatelessWidget {
 
     return BlocBuilder<VideoPostBloc, VideoPostState>(
       builder: (context, state) {
-        late VideoPlayerController _controller;
-        late Future<void> _initializeVideoPlayerFuture;
-        bool _isVisible = false;
+        late VideoPlayerController controller;
+        late Future<void> initializeVideoPlayerFuture;
 
-        _controller = VideoPlayerController.network(state.videoUrl);
-        _initializeVideoPlayerFuture = _controller.initialize();
-        _controller.setLooping(true);
+        controller = VideoPlayerController.network(state.videoUrl);
+        initializeVideoPlayerFuture = controller.initialize();
+        controller.setLooping(true);
 
-        void _onVisibilityChanged(VisibilityInfo visibilityInfo) {
+        void onVisibilityChanged(VisibilityInfo visibilityInfo) {
           double visibleFraction = visibilityInfo.visibleFraction;
-          if (visibleFraction > 0.5 && !_controller.value.isPlaying) {
-            _controller.play();
-            _isVisible = true;
-          } else if (visibleFraction <= 0.5 && _controller.value.isPlaying) {
-            _controller.pause();
-            _isVisible = false;
+          if (visibleFraction > 0.5 && !controller.value.isPlaying) {
+            controller.play();
+          } else if (visibleFraction <= 0.5 && controller.value.isPlaying) {
+            controller.pause();
           }
         }
 
         return VisibilityDetector(
           key: Key('video-visibility-${state.videoUrl}'),
-          onVisibilityChanged: _onVisibilityChanged,
+          onVisibilityChanged: onVisibilityChanged,
           child: FutureBuilder<void>(
-            future: _initializeVideoPlayerFuture,
+            future: initializeVideoPlayerFuture,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.done) {
                 return AspectRatio(
-                  aspectRatio: _controller.value.aspectRatio,
-                  child: VideoPlayer(_controller),
+                  aspectRatio: controller.value.aspectRatio,
+                  child: VideoPlayer(controller),
                 );
               } else {
                 return Center(child: CircularProgressIndicator());
