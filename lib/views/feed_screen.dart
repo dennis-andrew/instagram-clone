@@ -30,7 +30,7 @@ class _FeedScreenState extends State<FeedScreen> {
 
   Future<void> _fetchUsers() async {
     try {
-      Response response = await _dio.get('https://crudcrud.com/api/83de555d7762468692cd5890975edd16/users');
+      Response response = await _dio.get('https://crudcrud.com/api/855e8bffc57942c1b8f72cd228c5440b/users');
       List<dynamic> usersData = response.data[0]['users'];
       setState(() {
         users = usersData.map((userJson) => User.fromJson(userJson)).toList();
@@ -42,7 +42,7 @@ class _FeedScreenState extends State<FeedScreen> {
 
   Future<void> _fetchPosts() async {
     try {
-      Response response = await _dio.get('https://crudcrud.com/api/83de555d7762468692cd5890975edd16/posts');
+      Response response = await _dio.get('https://crudcrud.com/api/855e8bffc57942c1b8f72cd228c5440b/posts');
       List<dynamic> postsData = response.data[0]['posts'];
       setState(() {
         posts = postsData.map((postJson) => Post.fromJson(postJson)).toList();
