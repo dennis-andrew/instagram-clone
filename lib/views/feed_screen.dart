@@ -26,16 +26,21 @@ class FeedScreen extends StatelessWidget {
           SizedBox(width: 5),
           IconButton(
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen()));
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => ChatScreen()));
             },
-            icon: ImageIcon(AssetImage("assets/images/messenger.png"), size: 32),
+            icon:
+                ImageIcon(AssetImage("assets/images/messenger.png"), size: 32),
           ),
           SizedBox(width: 10),
         ],
       ),
       body: MultiBlocProvider(
         providers: [
-          BlocProvider(create: (context) => FeedScreenBloc(Dio())..add(FetchUsersEvent())..add(FetchPostsEvent())),
+          BlocProvider(
+              create: (context) => FeedScreenBloc(Dio())
+                ..add(FetchUsersEvent())
+                ..add(FetchPostsEvent())),
           BlocProvider(create: (context) => ImageCarouselBloc()),
           BlocProvider(create: (context) => VideoPostBloc()),
         ],
@@ -57,7 +62,7 @@ class FeedScreen extends StatelessWidget {
                     child: Row(
                       children: List.generate(
                         state.users.length,
-                            (index) {
+                        (index) {
                           User user = state.users[index];
                           return Container(
                             padding: EdgeInsets.all(10),
@@ -65,16 +70,19 @@ class FeedScreen extends StatelessWidget {
                               children: [
                                 CircleAvatar(
                                   radius: 35,
-                                  backgroundImage: AssetImage("assets/images/insta_story.png"),
+                                  backgroundImage: AssetImage(
+                                      "assets/images/insta_story.png"),
                                   child: CircleAvatar(
                                     radius: 30,
-                                    backgroundImage: NetworkImage(user.photoUrl),
+                                    backgroundImage:
+                                        NetworkImage(user.photoUrl),
                                   ),
                                 ),
                                 SizedBox(height: 10),
                                 Text(
                                   user.username,
-                                  style: TextStyle(fontSize: 12, color: Colors.black87),
+                                  style: TextStyle(
+                                      fontSize: 12, color: Colors.black87),
                                 ),
                               ],
                             ),
@@ -87,7 +95,7 @@ class FeedScreen extends StatelessWidget {
                   Column(
                     children: List.generate(
                       state.posts.length,
-                          (index) {
+                      (index) {
                         Post post = state.posts[index];
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -98,10 +106,12 @@ class FeedScreen extends StatelessWidget {
                                   padding: EdgeInsets.all(10),
                                   child: CircleAvatar(
                                     radius: 14,
-                                    backgroundImage: AssetImage("assets/images/insta_story.png"),
+                                    backgroundImage: AssetImage(
+                                        "assets/images/insta_story.png"),
                                     child: CircleAvatar(
                                       radius: 12,
-                                      backgroundImage: NetworkImage(state.users[index].photoUrl),
+                                      backgroundImage: NetworkImage(
+                                          state.users[index].photoUrl),
                                     ),
                                   ),
                                 ),
@@ -116,24 +126,33 @@ class FeedScreen extends StatelessWidget {
                             post.type == "image"
                                 ? Image.network(post.mediaUrl)
                                 : post.type == "carousel"
-                                ? ImageCarousel(carouselImages: post.carouselImages)
-                                : post.type == "video"
-                                ? VideoPost(videoUrl: post.mediaUrl)
-                                : SizedBox(),
+                                    ? ImageCarousel(
+                                        carouselImages: post.carouselImages)
+                                    : post.type == "video"
+                                        ? VideoPost(videoUrl: post.mediaUrl)
+                                        : SizedBox(),
                             Row(
                               children: [
                                 IconButton(
-                                  icon: ImageIcon(AssetImage("assets/images/heart.png"), size: 24,),
+                                  icon: ImageIcon(
+                                    AssetImage("assets/images/heart.png"),
+                                    size: 24,
+                                  ),
                                   onPressed: () {},
                                 ),
                                 Text(post.likes.toString()),
                                 IconButton(
-                                  icon: ImageIcon(AssetImage("assets/images/chat.png"), size: 24,),
+                                  icon: ImageIcon(
+                                    AssetImage("assets/images/chat.png"),
+                                    size: 24,
+                                  ),
                                   onPressed: () {},
                                 ),
                                 Text(post.comments.toString()),
                                 IconButton(
-                                  icon: ImageIcon(AssetImage("assets/images/send.png"), size: 24),
+                                  icon: ImageIcon(
+                                      AssetImage("assets/images/send.png"),
+                                      size: 24),
                                   onPressed: () {},
                                 ),
                                 Text(post.shares.toString()),
@@ -153,28 +172,34 @@ class FeedScreen extends StatelessWidget {
                                       text: TextSpan(
                                           style: TextStyle(color: Colors.black),
                                           children: [
-                                            TextSpan(text: 'Liked by'),
-                                            TextSpan(
-                                                text: ' ${state.users[index + 1].username}',
-                                                style: TextStyle(fontWeight: FontWeight.bold)),
-                                            TextSpan(text: " and"),
-                                            TextSpan(
-                                                text: ' others',
-                                                style: TextStyle(fontWeight: FontWeight.bold)),
-                                          ])),
+                                        TextSpan(text: 'Liked by'),
+                                        TextSpan(
+                                            text:
+                                                ' ${state.users[index + 1].username}',
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold)),
+                                        TextSpan(text: " and"),
+                                        TextSpan(
+                                            text: ' others',
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold)),
+                                      ])),
                                   SizedBox(height: 10),
                                   RichText(
                                       text: TextSpan(
                                           style: TextStyle(color: Colors.black),
                                           children: [
-                                            TextSpan(
-                                              text: " ${state.users[index].username} ",
-                                              style: TextStyle(fontWeight: FontWeight.bold),
-                                            ),
-                                            TextSpan(text: post.caption),
-                                          ])),
+                                        TextSpan(
+                                          text:
+                                              " ${state.users[index].username} ",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        TextSpan(text: post.caption),
+                                      ])),
                                   SizedBox(height: 10),
-                                  Text("13 hours ago", style: TextStyle(color: Colors.black38))
+                                  Text("13 hours ago",
+                                      style: TextStyle(color: Colors.black38))
                                 ],
                               ),
                             )
@@ -189,7 +214,8 @@ class FeedScreen extends StatelessWidget {
           },
         ),
       ),
-      bottomNavigationBar: CupertinoTabBar(height: 60, activeColor: Colors.black, items: [
+      bottomNavigationBar:
+          CupertinoTabBar(height: 60, activeColor: Colors.black, items: [
         BottomNavigationBarItem(
           icon: Icon(
             Icons.home_filled,
@@ -203,7 +229,11 @@ class FeedScreen extends StatelessWidget {
             icon: Icon(Icons.add_circle_outline, color: Colors.black),
             label: ''),
         BottomNavigationBarItem(
-            icon: ImageIcon(AssetImage("assets/images/video.png"), color: Colors.black, size: 26,),
+            icon: ImageIcon(
+              AssetImage("assets/images/video.png"),
+              color: Colors.black,
+              size: 26,
+            ),
             label: ''),
         BottomNavigationBarItem(
             icon: Icon(Icons.account_circle_outlined, color: Colors.black),
@@ -213,35 +243,42 @@ class FeedScreen extends StatelessWidget {
   }
 }
 
-
 class ImageCarousel extends StatelessWidget {
   final List<String> carouselImages;
 
-  ImageCarousel({required this.carouselImages});
+  const ImageCarousel({super.key, required this.carouselImages});
 
   @override
   Widget build(BuildContext context) {
-    context.read<ImageCarouselBloc>().add(LoadCarouselEvent(carouselImages: carouselImages));
+    context
+        .read<ImageCarouselBloc>()
+        .add(LoadCarouselEvent(carouselImages: carouselImages));
 
     return BlocBuilder<ImageCarouselBloc, ImageCarouselState>(
       builder: (context, state) {
-        return VisibilityDetector(
-          key: Key('carousel-visibility'),
-          onVisibilityChanged: (visibilityInfo) {
-          },
-          child: Stack(
-            children: [
+        return Column(
+          children: [
+            Stack(children: [
               CarouselSlider(
                 items: state.carouselImages
-                    .map((imageUrl) => Image.network(imageUrl))
+                    .map((imageUrl) => SizedBox(
+                          width: double.infinity,
+                          height: double.infinity,
+                          child: Image.network(
+                            imageUrl,
+                            fit: BoxFit.cover,
+                          ),
+                        ))
                     .toList(),
                 options: CarouselOptions(
                   enableInfiniteScroll: false,
-                  enlargeCenterPage: true,
                   onPageChanged: (index, reason) {
-                    context.read<ImageCarouselBloc>().add(ChangeIndexEvent(index: index));
+                    context
+                        .read<ImageCarouselBloc>()
+                        .add(ChangeIndexEvent(index: index));
                   },
                   scrollPhysics: BouncingScrollPhysics(),
+                  viewportFraction: 1.0,
                 ),
               ),
               Positioned(
@@ -250,54 +287,48 @@ class ImageCarousel extends StatelessWidget {
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.5),
-                    borderRadius: BorderRadius.circular(20),
+                    color: Colors.black.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(15),
                   ),
                   child: Text(
                     '${state.currentIndex + 1}/${state.carouselImages.length}',
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                      fontSize: 12,
                     ),
                   ),
                 ),
               ),
-              Positioned(
-                bottom: 10,
-                left: 0,
-                right: 0,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(
-                    state.carouselImages.length,
-                        (index) => Container(
-                      margin: EdgeInsets.symmetric(horizontal: 5),
-                      height: 8,
-                      width: 8,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: state.currentIndex == index
-                            ? Colors.blue
-                            : Colors.grey,
-                      ),
-                    ),
+            ]),
+            SizedBox(height:12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(
+                state.carouselImages.length,
+                (index) => Container(
+                  margin: EdgeInsets.symmetric(horizontal: 2),
+                  height: 6,
+                  width: 6,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color:
+                        state.currentIndex == index ? Colors.blue : Colors.grey,
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         );
       },
     );
   }
 }
 
-
 class VideoPost extends StatelessWidget {
   final String videoUrl;
 
-  VideoPost({required this.videoUrl});
+  const VideoPost({super.key, required this.videoUrl});
 
   @override
   Widget build(BuildContext context) {
