@@ -69,7 +69,7 @@ class UserList extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<ChatScreenBloc, ChatScreenState>(
       builder: (context, state) {
-        if (state.isLoading || state.users.isEmpty) {
+        if (state.isLoading || state.filteredUsers.isEmpty) {
           return Expanded(
             child: Stack(
               alignment: Alignment.center,
@@ -81,12 +81,19 @@ class UserList extends StatelessWidget {
             ),
           );
         }
+
         return Expanded(
           child: SingleChildScrollView(
+            controller: context.read<ChatScreenBloc>().scrollController,
             child: Column(
               children: [
                 UserCarousel(filteredUsers: state.filteredUsers),
                 MessagesList(filteredUsers: state.filteredUsers),
+                if (state.isLoadingMore)
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 20.h),
+                    child: CircularProgressIndicator(),
+                  ),
               ],
             ),
           ),
