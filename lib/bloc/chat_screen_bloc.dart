@@ -31,7 +31,7 @@ class ChatScreenState {
 class ChatScreenBloc extends Bloc<ChatScreenEvent, ChatScreenState> {
   final Dio _dio;
   int page = 1;
-  static const int pageSize = 5;
+  static const int pageSize = 2;
 
   ChatScreenBloc(this._dio)
       : super(ChatScreenState(users: [], filteredUsers: [], messages: [], isLoading: false)) {
@@ -42,7 +42,7 @@ class ChatScreenBloc extends Bloc<ChatScreenEvent, ChatScreenState> {
 
   Future<void> _onFetchUsers(FetchUsersEvent event, Emitter<ChatScreenState> emit) async {
     try {
-      Response response = await _dio.get('https://crudcrud.com/api/dfff8deef41b4083ae72474813b11f0a/users');
+      Response response = await _dio.get('https://crudcrud.com/api/dc250628451743d69196167a5f5c0608/users');
       List<dynamic> usersData = response.data[0]['users'];
       List<User> users = usersData.map((userJson) => User.fromJson(userJson)).toList();
       emit(ChatScreenState(users: users, filteredUsers: users, messages: [], isLoading: false));
@@ -75,7 +75,7 @@ class ChatScreenBloc extends Bloc<ChatScreenEvent, ChatScreenState> {
         isLoading: true,
       ));
 
-      Response response = await _dio.get('https://crudcrud.com/api/dfff8deef41b4083ae72474813b11f0a/users',
+      Response response = await _dio.get('https://crudcrud.com/api/dc250628451743d69196167a5f5c0608/users',
           queryParameters: {'page': page, 'size': pageSize});
 
       List<dynamic> messagesData = response.data[0]['messages'];

@@ -15,6 +15,7 @@ class ChatScreen extends StatelessWidget {
       create: (context) => ChatScreenBloc(Dio())..add(FetchUsersEvent()),
       child: Scaffold(
         appBar: AppBar(
+          forceMaterialTransparency: true,
           leadingWidth: MediaQuery.of(context).size.width * 0.15,
           title: Text("_my_profile", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.sp)),
           actions: [
@@ -40,10 +41,11 @@ class SearchField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.all(8.0.w),
+      padding: EdgeInsets.fromLTRB(14.0.w,14.0.w,8.0.w,0.w),
       child: TextField(
         controller: searchController,
         decoration: InputDecoration(
+          contentPadding: EdgeInsets.zero,
           hintText: 'Ask Meta AI or search',
           prefixIcon: Icon(Icons.search, size: 24.sp),
           filled: true,
@@ -68,6 +70,13 @@ class UserList extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<ChatScreenBloc, ChatScreenState>(
       builder: (context, state) {
+        if (state.isLoading || state.users.isEmpty) {
+          return Expanded(
+            child: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
         return Expanded(
           child: SingleChildScrollView(
             child: Column(
@@ -91,7 +100,7 @@ class UserCarousel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 8.0.h),
+      padding: EdgeInsets.fromLTRB(4.0.w,16.0.h,4.0.w,4.0.h),
       child: SizedBox(
         height: 100.h,
         child: ListView.builder(
@@ -99,17 +108,67 @@ class UserCarousel extends StatelessWidget {
           itemCount: filteredUsers.length,
           itemBuilder: (context, index) {
             return Container(
-              margin: EdgeInsets.symmetric(horizontal: 8.w),
+              margin: EdgeInsets.fromLTRB(12.0.w,16.0.h,12.0.w,0.h),
               child: Column(
                 children: [
-                  CircleAvatar(
-                    radius: 30.r,
-                    backgroundImage: NetworkImage(filteredUsers[index].photoUrl),
+                  Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      CircleAvatar(
+                        radius: 30.r,
+                        backgroundImage: NetworkImage(filteredUsers[index].photoUrl),
+                      ),
+                      if (index < 3)
+                        Positioned(
+                          top: -20.h,
+                          left: -5.w,
+                          child: Material(
+                            elevation: 3,
+                            borderRadius: BorderRadius.circular(10.r),
+                            child: Container(
+                              padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 6.h),
+                              constraints: BoxConstraints(maxWidth: 70.w),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(10.r),
+                              ),
+                              child: Text(
+                                textAlign: TextAlign.center,
+                                index == 0
+                                    ? "Share a note"
+                                    : "I am ${filteredUsers[index].username}",
+                                style: TextStyle(fontSize: 10.sp, color: index==0?Colors.black54:Colors.black),
+                                softWrap: true,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 2,
+                              ),
+                            ),
+                          )
+                        ),
+                      if(index>=3)
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: Container(
+                            padding: EdgeInsets.all(5),
+                            decoration: BoxDecoration(
+                              color: Colors.green,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Colors.white,
+                                width: 2,
+                              ),
+                            ),
+                            child: null,
+                          ),
+                        ),
+                    ],
                   ),
                   SizedBox(height: 5.h),
                   Text(
+                    index==0? "Your note":
                     filteredUsers[index].username,
-                    style: TextStyle(fontSize: 12.sp, color: Colors.black87),
+                    style: TextStyle(fontSize: 12.sp, color: index==0?Colors.black54:Colors.black),
                   ),
                 ],
               ),
@@ -129,18 +188,21 @@ class MessagesList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(15.w, 5.h, 15.w, 0),
+      padding: EdgeInsets.fromLTRB(6.w, 15.h, 6.w, 0),
       child: Column(
         children: [
-          Row(
-            children: [
-              Text("Messages", style: TextStyle(fontSize: 20.sp)),
-              Spacer(),
-              Text(
-                "Requests",
-                style: TextStyle(color: Colors.blueAccent, fontSize: 20.sp),
-              ),
-            ],
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            child: Row(
+              children: [
+                Text("Messages", style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold)),
+                Spacer(),
+                Text(
+                  "Requests",
+                  style: TextStyle(color: Colors.blueAccent, fontSize: 16.sp, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
           ),
           LazyLoadScrollView(
             onEndOfPage: () {
@@ -148,12 +210,12 @@ class MessagesList extends StatelessWidget {
             },
             child: ListView.builder(
               shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
+              physics: PageScrollPhysics(),
               itemCount: filteredUsers.length,
               itemBuilder: (context, index) {
                 return Column(
                   children: [
-                    SizedBox(height: 10.h),
+                    SizedBox(height: 4.h),
                     ListTile(
                       leading: CircleAvatar(
                         radius: 25.r,
@@ -165,7 +227,8 @@ class MessagesList extends StatelessWidget {
                         onPressed: () {},
                         icon: Icon(
                           Icons.camera_alt_outlined,
-                          size: 30.sp,
+                          size: 28.sp,
+                          color: Colors.black38,
                         ),
                       ),
                       onTap: () {},
