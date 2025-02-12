@@ -12,90 +12,80 @@ class SearchUsersEvent extends ChatScreenEvent {
   SearchUsersEvent(this.query);
 }
 
-class FetchMoreMessagesEvent extends ChatScreenEvent {}
-
 class ChatScreenState {
   final List<User> users;
   final List<User> filteredUsers;
-  final List<User> messages;
   final bool isLoading;
+  final String error;
 
   ChatScreenState({
     required this.users,
     required this.filteredUsers,
-    required this.messages,
     required this.isLoading,
+    this.error = '',
   });
+
+  factory ChatScreenState.initial() {
+    return ChatScreenState(
+      users: [],
+      filteredUsers: [],
+      isLoading: false,
+      error: '',
+    );
+  }
+
+  ChatScreenState copyWith({
+    List<User>? users,
+    List<User>? filteredUsers,
+    bool? isLoading,
+    String? error,
+  }) {
+    return ChatScreenState(
+      users: users ?? this.users,
+      filteredUsers: filteredUsers ?? this.filteredUsers,
+      isLoading: isLoading ?? this.isLoading,
+      error: error ?? this.error,
+    );
+  }
 }
 
 class ChatScreenBloc extends Bloc<ChatScreenEvent, ChatScreenState> {
   final Dio _dio;
-  int page = 1;
-  static const int pageSize = 2;
 
-  ChatScreenBloc(this._dio)
-      : super(ChatScreenState(users: [], filteredUsers: [], messages: [], isLoading: false)) {
+  ChatScreenBloc(this._dio) : super(ChatScreenState.initial()) {
     on<FetchUsersEvent>(_onFetchUsers);
     on<SearchUsersEvent>(_onSearchUsers);
-    on<FetchMoreMessagesEvent>(_onFetchMoreMessages);
   }
 
   Future<void> _onFetchUsers(FetchUsersEvent event, Emitter<ChatScreenState> emit) async {
     try {
+      emit(state.copyWith(isLoading: true));
       Response response = await _dio.get('https://crudcrud.com/api/dc250628451743d69196167a5f5c0608/users');
       List<dynamic> usersData = response.data[0]['users'];
       List<User> users = usersData.map((userJson) => User.fromJson(userJson)).toList();
-      emit(ChatScreenState(users: users, filteredUsers: users, messages: [], isLoading: false));
+
+      emit(state.copyWith(
+        users: users,
+        filteredUsers: users,
+        isLoading: false,
+      ));
     } catch (e) {
+      emit(state.copyWith(
+        isLoading: false,
+        error: "Error fetching users: $e",
+      ));
       print("Error fetching users: $e");
     }
   }
 
   void _onSearchUsers(SearchUsersEvent event, Emitter<ChatScreenState> emit) {
-    String query = event.query.toLowerCase();
+    final query = event.query.toLowerCase();
     final filteredUsers = state.users.where((user) {
       return user.username.toLowerCase().contains(query);
     }).toList();
-    emit(ChatScreenState(
-      users: state.users,
+
+    emit(state.copyWith(
       filteredUsers: filteredUsers,
-      messages: state.messages,
-      isLoading: false,
     ));
-  }
-
-  Future<void> _onFetchMoreMessages(FetchMoreMessagesEvent event, Emitter<ChatScreenState> emit) async {
-    if (state.isLoading) return;
-
-    try {
-      emit(ChatScreenState(
-        users: state.users,
-        filteredUsers: state.filteredUsers,
-        messages: state.messages,
-        isLoading: true,
-      ));
-
-      Response response = await _dio.get('https://crudcrud.com/api/dc250628451743d69196167a5f5c0608/users',
-          queryParameters: {'page': page, 'size': pageSize});
-
-      List<dynamic> messagesData = response.data[0]['messages'];
-      List<User> newMessages = messagesData.map((messageJson) => User.fromJson(messageJson)).toList();
-
-      emit(ChatScreenState(
-        users: state.users,
-        filteredUsers: state.filteredUsers,
-        messages: [...state.messages, ...newMessages],
-        isLoading: false,
-      ));
-
-      page++;
-    } catch (e) {
-      emit(ChatScreenState(
-        users: state.users,
-        filteredUsers: state.filteredUsers,
-        messages: state.messages,
-        isLoading: false,
-      ));
-    }
   }
 }

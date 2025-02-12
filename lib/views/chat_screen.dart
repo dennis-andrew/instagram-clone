@@ -4,7 +4,6 @@ import 'package:dio/dio.dart';
 import 'package:instagram_clone/models/user.dart';
 import 'package:instagram_clone/bloc/chat_screen_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:lazy_load_scrollview/lazy_load_scrollview.dart';
 
 class ChatScreen extends StatelessWidget {
   const ChatScreen({super.key});
@@ -72,8 +71,13 @@ class UserList extends StatelessWidget {
       builder: (context, state) {
         if (state.isLoading || state.users.isEmpty) {
           return Expanded(
-            child: Center(
-              child: CircularProgressIndicator(),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Center(
+                  child: CircularProgressIndicator(),
+                ),
+              ],
             ),
           );
         }
@@ -120,30 +124,30 @@ class UserCarousel extends StatelessWidget {
                       ),
                       if (index < 3)
                         Positioned(
-                          top: -20.h,
-                          left: -5.w,
-                          child: Material(
-                            elevation: 3,
-                            borderRadius: BorderRadius.circular(10.r),
-                            child: Container(
-                              padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 6.h),
-                              constraints: BoxConstraints(maxWidth: 70.w),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(10.r),
+                            top: -20.h,
+                            left: -5.w,
+                            child: Material(
+                              elevation: 3,
+                              borderRadius: BorderRadius.circular(10.r),
+                              child: Container(
+                                padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 6.h),
+                                constraints: BoxConstraints(maxWidth: 70.w),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(10.r),
+                                ),
+                                child: Text(
+                                  textAlign: TextAlign.center,
+                                  index == 0
+                                      ? "Share a note"
+                                      : "I am ${filteredUsers[index].username}",
+                                  style: TextStyle(fontSize: 10.sp, color: index==0?Colors.black54:Colors.black),
+                                  softWrap: true,
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 2,
+                                ),
                               ),
-                              child: Text(
-                                textAlign: TextAlign.center,
-                                index == 0
-                                    ? "Share a note"
-                                    : "I am ${filteredUsers[index].username}",
-                                style: TextStyle(fontSize: 10.sp, color: index==0?Colors.black54:Colors.black),
-                                softWrap: true,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 2,
-                              ),
-                            ),
-                          )
+                            )
                         ),
                       if(index>=3)
                         Positioned(
@@ -204,40 +208,35 @@ class MessagesList extends StatelessWidget {
               ],
             ),
           ),
-          LazyLoadScrollView(
-            onEndOfPage: () {
-              context.read<ChatScreenBloc>().add(FetchMoreMessagesEvent());
-            },
-            child: ListView.builder(
-              shrinkWrap: true,
-              physics: PageScrollPhysics(),
-              itemCount: filteredUsers.length,
-              itemBuilder: (context, index) {
-                return Column(
-                  children: [
-                    SizedBox(height: 4.h),
-                    ListTile(
-                      leading: CircleAvatar(
-                        radius: 25.r,
-                        backgroundImage: NetworkImage(filteredUsers[index].photoUrl),
-                      ),
-                      title: Text(filteredUsers[index].username),
-                      subtitle: Text("Hey, how's it going?"),
-                      trailing: IconButton(
-                        onPressed: () {},
-                        icon: Icon(
-                          Icons.camera_alt_outlined,
-                          size: 28.sp,
-                          color: Colors.black38,
-                        ),
-                      ),
-                      onTap: () {},
+          ListView.builder(
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            itemCount: filteredUsers.length,
+            itemBuilder: (context, index) {
+              return Column(
+                children: [
+                  SizedBox(height: 4.h),
+                  ListTile(
+                    leading: CircleAvatar(
+                      radius: 25.r,
+                      backgroundImage: NetworkImage(filteredUsers[index].photoUrl),
                     ),
-                    SizedBox(height: 10.h),
-                  ],
-                );
-              },
-            ),
+                    title: Text(filteredUsers[index].username),
+                    subtitle: Text("Hey, how's it going?"),
+                    trailing: IconButton(
+                      onPressed: () {},
+                      icon: Icon(
+                        Icons.camera_alt_outlined,
+                        size: 28.sp,
+                        color: Colors.black38,
+                      ),
+                    ),
+                    onTap: () {},
+                  ),
+                  SizedBox(height: 10.h),
+                ],
+              );
+            },
           ),
         ],
       ),
