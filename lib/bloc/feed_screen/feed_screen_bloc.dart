@@ -27,7 +27,7 @@ class FeedScreenBloc extends Bloc<FeedScreenEvent, FeedScreenState> {
 
   Future<void> _onFetchUsers(FetchUsersEvent event, Emitter<FeedScreenState> emit) async {
     try {
-      Response response = await _dio.get('https://crudcrud.com/api/bbb59d7bad874596a8e9cd687ad6f8bd/users');
+      Response response = await _dio.get('https://crudcrud.com/api/68a5e9c9c2784510988e9b16bc0d9d8c/users');
       List<dynamic> usersData = response.data[0]['users'];
       List<User> users = usersData.map((userJson) => User.fromJson(userJson)).toList();
       emit(FeedScreenState(users: users, posts: []));
@@ -38,7 +38,7 @@ class FeedScreenBloc extends Bloc<FeedScreenEvent, FeedScreenState> {
 
   Future<void> _onFetchPosts(FetchPostsEvent event, Emitter<FeedScreenState> emit) async {
     try {
-      Response response = await _dio.get('https://crudcrud.com/api/bbb59d7bad874596a8e9cd687ad6f8bd/posts');
+      Response response = await _dio.get('https://crudcrud.com/api/68a5e9c9c2784510988e9b16bc0d9d8c/posts');
       List<dynamic> postsData = response.data[0]['posts'];
       List<Post> posts = postsData.map((postJson) => Post.fromJson(postJson)).toList();
       emit(FeedScreenState(users: state.users, posts: posts));

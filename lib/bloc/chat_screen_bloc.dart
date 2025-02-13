@@ -9,7 +9,6 @@ class FetchUsersEvent extends ChatScreenEvent {}
 
 class SearchUsersEvent extends ChatScreenEvent {
   final String query;
-
   SearchUsersEvent(this.query);
 }
 
@@ -19,30 +18,23 @@ class ChatScreenState {
   final bool isLoading;
   final String error;
   final bool isLoadingMore;
+  final bool isEmptyAfterFetch;
 
   ChatScreenState({
-    required this.users,
-    required this.filteredUsers,
-    required this.isLoading,
-    required this.isLoadingMore,
+    this.users = const [],
+    this.filteredUsers = const [],
+    this.isLoading = true,
+    this.isLoadingMore = false,
+    this.isEmptyAfterFetch = false,
     this.error = '',
   });
-
-  factory ChatScreenState.initial() {
-    return ChatScreenState(
-      users: [],
-      filteredUsers: [],
-      isLoading: false,
-      isLoadingMore: false,
-      error: '',
-    );
-  }
 
   ChatScreenState copyWith({
     List<User>? users,
     List<User>? filteredUsers,
     bool? isLoading,
     bool? isLoadingMore,
+    bool? isEmptyAfterFetch,
     String? error,
   }) {
     return ChatScreenState(
@@ -50,6 +42,7 @@ class ChatScreenState {
       filteredUsers: filteredUsers ?? this.filteredUsers,
       isLoading: isLoading ?? this.isLoading,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+      isEmptyAfterFetch: isEmptyAfterFetch ?? this.isEmptyAfterFetch,
       error: error ?? this.error,
     );
   }
@@ -59,9 +52,10 @@ class ChatScreenBloc extends Bloc<ChatScreenEvent, ChatScreenState> {
   final Dio _dio;
   final ScrollController scrollController = ScrollController();
 
-  ChatScreenBloc(this._dio) : super(ChatScreenState.initial()) {
+  ChatScreenBloc(this._dio) : super(ChatScreenState()) {
     on<FetchUsersEvent>(_onFetchUsers);
     on<SearchUsersEvent>(_onSearchUsers);
+
     scrollController.addListener(() {
       if (scrollController.position.pixels == scrollController.position.maxScrollExtent) {
         add(FetchUsersEvent());
@@ -69,38 +63,40 @@ class ChatScreenBloc extends Bloc<ChatScreenEvent, ChatScreenState> {
     });
   }
 
-
   Future<void> _onFetchUsers(FetchUsersEvent event, Emitter<ChatScreenState> emit) async {
-    if (state.isLoading || state.isLoadingMore) return;
-
     try {
-      emit(state.copyWith(isLoadingMore: true));
-      Response response = await _dio.get('https://crudcrud.com/api/bbb59d7bad874596a8e9cd687ad6f8bd/messages');
+      if (state.users.isEmpty) {
+        //first load
+        emit(state.copyWith(isLoading: true,isLoadingMore: false));
+      } else {
+        //pagination
+        emit(state.copyWith(isLoading: false,isLoadingMore: true));
+      }
+
+      Response response = await _dio.get('https://crudcrud.com/api/68a5e9c9c2784510988e9b16bc0d9d8c/messages');
       List<dynamic> usersData = response.data[0]['users'];
       List<User> newUsers = usersData.map((userJson) => User.fromJson(userJson)).toList();
 
-      emit(state.copyWith(
-        users: [...state.users, ...newUsers],
-        filteredUsers: [...state.users, ...newUsers],
-        isLoadingMore: false,
-      ));
+      if (newUsers.isEmpty) {
+        emit(state.copyWith(isLoading: false, isEmptyAfterFetch: true));
+      } else {
+        emit(state.copyWith(
+          users: [...state.users, ...newUsers],
+          filteredUsers: [...state.filteredUsers, ...newUsers],
+          isLoading: false,
+          isLoadingMore: false,
+          isEmptyAfterFetch: false,
+        ));
+      }
     } catch (e) {
-      emit(state.copyWith(
-        isLoadingMore: false,
-        error: "Error fetching users: $e",
-      ));
-      print("Error fetching users: $e");
+      emit(state.copyWith(isLoading: false, isLoadingMore: false, error: "Error fetching users: $e"));
     }
   }
 
   void _onSearchUsers(SearchUsersEvent event, Emitter<ChatScreenState> emit) {
     final query = event.query.toLowerCase();
-    final filteredUsers = state.users.where((user) {
-      return user.username.toLowerCase().contains(query);
-    }).toList();
+    final filteredUsers = state.users.where((user) => user.username.toLowerCase().contains(query)).toList();
 
-    emit(state.copyWith(
-      filteredUsers: filteredUsers,
-    ));
+    emit(state.copyWith(filteredUsers: filteredUsers));
   }
 }

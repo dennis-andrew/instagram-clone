@@ -16,7 +16,7 @@ class ChatScreen extends StatelessWidget {
         appBar: AppBar(
           forceMaterialTransparency: true,
           leadingWidth: MediaQuery.of(context).size.width * 0.15,
-          title: Text("_my_profile", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.sp)),
+          title: Text("_my_profile", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22.sp)),
           actions: [
             IconButton(onPressed: () {}, icon: Icon(Icons.note_alt_outlined, size: 24.sp)),
           ],
@@ -69,25 +69,29 @@ class UserList extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<ChatScreenBloc, ChatScreenState>(
       builder: (context, state) {
-        if (state.isLoading || state.filteredUsers.isEmpty) {
+        if (state.isLoading) {
           return Expanded(
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Center(
-                  child: CircularProgressIndicator(),
-                ),
-              ],
+            child: Center(
+              child: CircularProgressIndicator(),
             ),
           );
         }
-
+        if (state.isEmptyAfterFetch) {
+          return Expanded(
+            child: Center(
+              child: Text(
+                'No users found.',
+                style: TextStyle(fontSize: 18.sp, color: Colors.black54),
+              ),
+            ),
+          );
+        }
         return Expanded(
           child: SingleChildScrollView(
             controller: context.read<ChatScreenBloc>().scrollController,
             child: Column(
               children: [
-                UserCarousel(filteredUsers: state.filteredUsers),
+                UserCarousel(filteredUsers: state.users),
                 MessagesList(filteredUsers: state.filteredUsers),
                 if (state.isLoadingMore)
                   Padding(
@@ -156,23 +160,6 @@ class UserCarousel extends StatelessWidget {
                               ),
                             )
                         ),
-                      if(index>=3)
-                        Positioned(
-                          bottom: 0,
-                          right: 0,
-                          child: Container(
-                            padding: EdgeInsets.all(5),
-                            decoration: BoxDecoration(
-                              color: Colors.green,
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: Colors.white,
-                                width: 2,
-                              ),
-                            ),
-                            child: null,
-                          ),
-                        ),
                     ],
                   ),
                   SizedBox(height: 5.h),
@@ -206,11 +193,11 @@ class MessagesList extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 12.0),
             child: Row(
               children: [
-                Text("Messages", style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold)),
+                Text("Messages", style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500)),
                 Spacer(),
                 Text(
                   "Requests",
-                  style: TextStyle(color: Colors.blueAccent, fontSize: 16.sp, fontWeight: FontWeight.bold),
+                  style: TextStyle(color: Colors.blueAccent, fontSize: 16.sp, fontWeight: FontWeight.w500),
                 ),
               ],
             ),
