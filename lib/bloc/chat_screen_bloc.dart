@@ -18,14 +18,12 @@ class ChatScreenState {
   final bool isLoading;
   final String error;
   final bool isLoadingMore;
-  final bool isEmptyAfterFetch;
 
   ChatScreenState({
     this.users = const [],
     this.filteredUsers = const [],
     this.isLoading = true,
     this.isLoadingMore = false,
-    this.isEmptyAfterFetch = false,
     this.error = '',
   });
 
@@ -34,7 +32,6 @@ class ChatScreenState {
     List<User>? filteredUsers,
     bool? isLoading,
     bool? isLoadingMore,
-    bool? isEmptyAfterFetch,
     String? error,
   }) {
     return ChatScreenState(
@@ -42,7 +39,6 @@ class ChatScreenState {
       filteredUsers: filteredUsers ?? this.filteredUsers,
       isLoading: isLoading ?? this.isLoading,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
-      isEmptyAfterFetch: isEmptyAfterFetch ?? this.isEmptyAfterFetch,
       error: error ?? this.error,
     );
   }
@@ -77,17 +73,12 @@ class ChatScreenBloc extends Bloc<ChatScreenEvent, ChatScreenState> {
       List<dynamic> usersData = response.data[0]['users'];
       List<User> newUsers = usersData.map((userJson) => User.fromJson(userJson)).toList();
 
-      if (newUsers.isEmpty) {
-        emit(state.copyWith(isLoading: false, isEmptyAfterFetch: true));
-      } else {
-        emit(state.copyWith(
-          users: [...state.users, ...newUsers],
-          filteredUsers: [...state.filteredUsers, ...newUsers],
-          isLoading: false,
-          isLoadingMore: false,
-          isEmptyAfterFetch: false,
-        ));
-      }
+      emit(state.copyWith(
+        users: [...state.users, ...newUsers],
+        filteredUsers: [...state.filteredUsers, ...newUsers],
+        isLoading: false,
+        isLoadingMore: false,
+      ));
     } catch (e) {
       emit(state.copyWith(isLoading: false, isLoadingMore: false, error: "Error fetching users: $e"));
     }

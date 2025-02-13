@@ -31,7 +31,7 @@ class FeedScreen extends StatelessWidget {
                   MaterialPageRoute(builder: (context) => ChatScreen()));
             },
             icon:
-            ImageIcon(AssetImage("assets/images/messenger.png"), size: 32),
+                ImageIcon(AssetImage("assets/images/messenger.png"), size: 32),
           ),
           SizedBox(width: 10),
         ],
@@ -39,9 +39,10 @@ class FeedScreen extends StatelessWidget {
       body: MultiBlocProvider(
         providers: [
           BlocProvider(
-              create: (context) => FeedScreenBloc(Dio())
-                ..add(FetchUsersEvent())
-                ..add(FetchPostsEvent())),
+            create: (context) => FeedScreenBloc(Dio())
+              ..add(FetchUsersEvent())
+              ..add(FetchPostsEvent()),
+          ),
           BlocProvider(create: (context) => ImageCarouselBloc()),
           BlocProvider(create: (context) => VideoPostBloc()),
         ],
@@ -50,11 +51,12 @@ class FeedScreen extends StatelessWidget {
             if (state.errorMessage.isNotEmpty) {
               return Center(child: Text(state.errorMessage));
             }
-
-            if (state.posts.isEmpty) {
+            if (state.isLoading) {
               return Center(child: CircularProgressIndicator());
             }
-
+            if (state.posts.isEmpty) {
+              return Center(child: Text('No Posts available'));
+            }
             return SingleChildScrollView(
               child: Column(
                 children: [
@@ -63,7 +65,7 @@ class FeedScreen extends StatelessWidget {
                     child: Row(
                       children: List.generate(
                         state.users.length,
-                            (index) {
+                        (index) {
                           User user = state.users[index];
                           return Container(
                             padding: EdgeInsets.all(10),
@@ -72,24 +74,24 @@ class FeedScreen extends StatelessWidget {
                                 Stack(
                                   clipBehavior: Clip.none,
                                   children: [
-                                    if(index !=0)
-                                    CircleAvatar(
-                                      radius: 35,
-                                      backgroundImage: AssetImage(
-                                          "assets/images/insta_story.png"),
-                                      child: CircleAvatar(
-                                        radius: 30,
-                                        backgroundImage:
-                                        NetworkImage(user.photoUrl),
+                                    if (index != 0)
+                                      CircleAvatar(
+                                        radius: 35,
+                                        backgroundImage: AssetImage(
+                                            "assets/images/insta_story.png"),
+                                        child: CircleAvatar(
+                                          radius: 30,
+                                          backgroundImage:
+                                              NetworkImage(user.photoUrl),
+                                        ),
                                       ),
-                                    ),
                                     if (index == 0)
                                       CircleAvatar(
-                                      radius: 35,
-                                      backgroundImage:
-                                      NetworkImage(user.photoUrl),
-                                    ),
-                                    if(index==0)
+                                        radius: 35,
+                                        backgroundImage:
+                                            NetworkImage(user.photoUrl),
+                                      ),
+                                    if (index == 0)
                                       Positioned(
                                         bottom: -8,
                                         right: -3,
@@ -131,7 +133,7 @@ class FeedScreen extends StatelessWidget {
                   Column(
                     children: List.generate(
                       state.posts.length,
-                          (index) {
+                      (index) {
                         Post post = state.posts[index];
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -147,11 +149,11 @@ class FeedScreen extends StatelessWidget {
                                     child: CircleAvatar(
                                       radius: 12,
                                       backgroundImage: NetworkImage(
-                                          state.users[index+2].photoUrl),
+                                          state.users[index + 2].photoUrl),
                                     ),
                                   ),
                                 ),
-                                Text(state.users[index+2].username),
+                                Text(state.users[index + 2].username),
                                 Spacer(),
                                 IconButton(
                                   icon: Icon(Icons.more_vert),
@@ -162,11 +164,11 @@ class FeedScreen extends StatelessWidget {
                             post.type == "image"
                                 ? Image.network(post.mediaUrl)
                                 : post.type == "carousel"
-                                ? ImageCarousel(
-                                carouselImages: post.carouselImages)
-                                : post.type == "video"
-                                ? VideoPost(videoUrl: post.mediaUrl)
-                                : SizedBox(),
+                                    ? ImageCarousel(
+                                        carouselImages: post.carouselImages)
+                                    : post.type == "video"
+                                        ? VideoPost(videoUrl: post.mediaUrl)
+                                        : SizedBox(),
                             Row(
                               children: [
                                 IconButton(
@@ -208,34 +210,37 @@ class FeedScreen extends StatelessWidget {
                                       text: TextSpan(
                                           style: TextStyle(color: Colors.black),
                                           children: [
-                                            TextSpan(text: 'Liked by'),
-                                            TextSpan(
-                                                text:
+                                        TextSpan(text: 'Liked by'),
+                                        TextSpan(
+                                            text:
                                                 ' ${state.users[index + 1].username}',
-                                                style: TextStyle(
-                                                    fontWeight: FontWeight.bold)),
-                                            TextSpan(text: " and"),
-                                            TextSpan(
-                                                text: ' others',
-                                                style: TextStyle(
-                                                    fontWeight: FontWeight.bold)),
-                                          ])),
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold)),
+                                        TextSpan(text: " and"),
+                                        TextSpan(
+                                            text: ' others',
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold)),
+                                      ])),
                                   SizedBox(height: 10),
                                   RichText(
                                       text: TextSpan(
                                           style: TextStyle(color: Colors.black),
                                           children: [
-                                            TextSpan(
-                                              text:
+                                        TextSpan(
+                                          text:
                                               " ${state.users[index].username} ",
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                            TextSpan(text: post.caption),
-                                          ])),
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        TextSpan(text: post.caption),
+                                      ])),
                                   SizedBox(height: 10),
-                                  Text("13 hours ago",
-                                    style: TextStyle(color: Colors.black38, fontSize: 12),)
+                                  Text(
+                                    "13 hours ago",
+                                    style: TextStyle(
+                                        color: Colors.black38, fontSize: 12),
+                                  )
                                 ],
                               ),
                             )
@@ -251,7 +256,7 @@ class FeedScreen extends StatelessWidget {
         ),
       ),
       bottomNavigationBar:
-      CupertinoTabBar(height: 60, activeColor: Colors.black, items: [
+          CupertinoTabBar(height: 60, activeColor: Colors.black, items: [
         BottomNavigationBarItem(
           icon: Icon(
             Icons.home_filled,
@@ -298,13 +303,13 @@ class ImageCarousel extends StatelessWidget {
               CarouselSlider(
                 items: state.carouselImages
                     .map((imageUrl) => SizedBox(
-                  width: double.infinity,
-                  height: double.infinity,
-                  child: Image.network(
-                    imageUrl,
-                    fit: BoxFit.cover,
-                  ),
-                ))
+                          width: double.infinity,
+                          height: double.infinity,
+                          child: Image.network(
+                            imageUrl,
+                            fit: BoxFit.cover,
+                          ),
+                        ))
                     .toList(),
                 options: CarouselOptions(
                   enableInfiniteScroll: false,
@@ -342,14 +347,14 @@ class ImageCarousel extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(
                 state.carouselImages.length,
-                    (index) => Container(
+                (index) => Container(
                   margin: EdgeInsets.symmetric(horizontal: 2),
                   height: 6,
                   width: 6,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color:
-                    state.currentIndex == index ? Colors.blue : Colors.grey,
+                        state.currentIndex == index ? Colors.blue : Colors.grey,
                   ),
                 ),
               ),

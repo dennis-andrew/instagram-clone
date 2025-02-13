@@ -76,7 +76,7 @@ class UserList extends StatelessWidget {
             ),
           );
         }
-        if (state.isEmptyAfterFetch) {
+        if (state.users.isEmpty) {
           return Expanded(
             child: Center(
               child: Text(
@@ -159,6 +159,23 @@ class UserCarousel extends StatelessWidget {
                                 ),
                               ),
                             )
+                        ),
+                      if(index>=3)
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: Container(
+                            padding: EdgeInsets.all(5),
+                            decoration: BoxDecoration(
+                              color: Colors.green,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Colors.white,
+                                width: 2,
+                              ),
+                            ),
+                            child: null,
+                          ),
                         ),
                     ],
                   ),
