@@ -3,46 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:instagram_clone/models/user.dart';
 
-class ChatScreenEvent {}
-
-class FetchUsersEvent extends ChatScreenEvent {}
-
-class SearchUsersEvent extends ChatScreenEvent {
-  final String query;
-  SearchUsersEvent(this.query);
-}
-
-class ChatScreenState {
-  final List<User> users;
-  final List<User> filteredUsers;
-  final bool isLoading;
-  final String error;
-  final bool isLoadingMore;
-
-  ChatScreenState({
-    this.users = const [],
-    this.filteredUsers = const [],
-    this.isLoading = true,
-    this.isLoadingMore = false,
-    this.error = '',
-  });
-
-  ChatScreenState copyWith({
-    List<User>? users,
-    List<User>? filteredUsers,
-    bool? isLoading,
-    bool? isLoadingMore,
-    String? error,
-  }) {
-    return ChatScreenState(
-      users: users ?? this.users,
-      filteredUsers: filteredUsers ?? this.filteredUsers,
-      isLoading: isLoading ?? this.isLoading,
-      isLoadingMore: isLoadingMore ?? this.isLoadingMore,
-      error: error ?? this.error,
-    );
-  }
-}
+import 'chat_screen_event.dart';
+import 'chat_screen_state.dart';
 
 class ChatScreenBloc extends Bloc<ChatScreenEvent, ChatScreenState> {
   final Dio _dio;
@@ -69,7 +31,7 @@ class ChatScreenBloc extends Bloc<ChatScreenEvent, ChatScreenState> {
         emit(state.copyWith(isLoading: false,isLoadingMore: true));
       }
 
-      Response response = await _dio.get('https://crudcrud.com/api/68a5e9c9c2784510988e9b16bc0d9d8c/messages');
+      Response response = await _dio.get('https://crudcrud.com/api/8df72560677e4876bf360ceab372e04c/messages');
       List<dynamic> usersData = response.data[0]['users'];
       List<User> newUsers = usersData.map((userJson) => User.fromJson(userJson)).toList();
 

@@ -1,25 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class ImageCarouselEvent {}
-
-class LoadCarouselEvent extends ImageCarouselEvent {
-  final List<String> carouselImages;
-
-  LoadCarouselEvent({required this.carouselImages});
-}
-
-class ChangeIndexEvent extends ImageCarouselEvent {
-  final int index;
-
-  ChangeIndexEvent({required this.index});
-}
-
-class ImageCarouselState {
-  final List<String> carouselImages;
-  final int currentIndex;
-
-  ImageCarouselState({required this.carouselImages, required this.currentIndex});
-}
+import 'image_carousel_event.dart';
+import 'image_carousel_state.dart';
 
 class ImageCarouselBloc extends Bloc<ImageCarouselEvent, ImageCarouselState> {
   ImageCarouselBloc() : super(ImageCarouselState(carouselImages: [], currentIndex: 0)) {

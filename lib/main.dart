@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:instagram_clone/theme.dart';
 import 'package:instagram_clone/views/feed_screen.dart';
 import 'dart:io';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -26,14 +27,7 @@ class MyApp extends StatelessWidget {
       builder: (context, child) {
         return MaterialApp(
           themeMode: ThemeMode.light,
-          theme: ThemeData(
-              brightness: Brightness.light,
-              iconButtonTheme: IconButtonThemeData(
-                style: IconButton.styleFrom(
-                  foregroundColor: Colors.black,
-                  iconSize: 30.sp,
-                ),
-              )),
+          theme: themeData,
           title: "Instagram",
           debugShowCheckedModeBanner: false,
           home: FeedScreen(),

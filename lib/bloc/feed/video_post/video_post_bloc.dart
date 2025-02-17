@@ -1,18 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-class VideoPostEvent {}
-
-class LoadVideoPostEvent extends VideoPostEvent {
-  final String videoUrl;
-
-  LoadVideoPostEvent({required this.videoUrl});
-}
-
-class VideoPostState {
-  final String videoUrl;
-
-  VideoPostState({required this.videoUrl});
-}
+import 'package:instagram_clone/bloc/feed/video_post/video_post_event.dart';
+import 'package:instagram_clone/bloc/feed/video_post/video_post_state.dart';
 
 class VideoPostBloc extends Bloc<VideoPostEvent, VideoPostState> {
   VideoPostBloc() : super(VideoPostState(videoUrl: '')) {

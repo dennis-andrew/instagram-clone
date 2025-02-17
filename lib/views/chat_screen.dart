@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:instagram_clone/models/user.dart';
-import 'package:instagram_clone/bloc/chat_screen_bloc.dart';
+import 'package:instagram_clone/bloc/chat_screen/chat_screen_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+import '../bloc/chat_screen/chat_screen_event.dart';
+import '../bloc/chat_screen/chat_screen_state.dart';
 
 class ChatScreen extends StatelessWidget {
   const ChatScreen({super.key});

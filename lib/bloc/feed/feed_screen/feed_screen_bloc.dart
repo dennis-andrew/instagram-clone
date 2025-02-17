@@ -3,20 +3,8 @@ import 'package:dio/dio.dart';
 import 'package:instagram_clone/models/user.dart';
 import 'package:instagram_clone/models/post.dart';
 
-class FeedScreenEvent {}
-
-class FetchUsersEvent extends FeedScreenEvent {}
-
-class FetchPostsEvent extends FeedScreenEvent {}
-
-class FeedScreenState {
-  final List<User> users;
-  final List<Post> posts;
-  final String errorMessage;
-  final bool isLoading;
-
-  FeedScreenState({required this.users, required this.posts, this.errorMessage = '', this.isLoading = false});
-}
+import 'feed_screen_event.dart';
+import 'feed_screen_state.dart';
 
 class FeedScreenBloc extends Bloc<FeedScreenEvent, FeedScreenState> {
   final Dio _dio;
@@ -28,7 +16,7 @@ class FeedScreenBloc extends Bloc<FeedScreenEvent, FeedScreenState> {
 
   Future<void> _onFetchUsers(FetchUsersEvent event, Emitter<FeedScreenState> emit) async {
     try {
-      Response response = await _dio.get('https://crudcrud.com/api/68a5e9c9c2784510988e9b16bc0d9d8c/users');
+      Response response = await _dio.get('https://crudcrud.com/api/8df72560677e4876bf360ceab372e04c/users');
       List<dynamic> usersData = response.data[0]['users'];
       List<User> users = usersData.map((userJson) => User.fromJson(userJson)).toList();
       emit(FeedScreenState(users: users, posts: state.posts));
@@ -41,7 +29,7 @@ class FeedScreenBloc extends Bloc<FeedScreenEvent, FeedScreenState> {
     emit(FeedScreenState(users: state.users, posts: state.posts, isLoading: true));
 
     try {
-      Response response = await _dio.get('https://crudcrud.com/api/68a5e9c9c2784510988e9b16bc0d9d8c/posts');
+      Response response = await _dio.get('https://crudcrud.com/api/8df72560677e4876bf360ceab372e04c/posts');
       List<dynamic> postsData = response.data[0]['posts'];
       List<Post> posts = postsData.isNotEmpty ? postsData.map((postJson) => Post.fromJson(postJson)).toList() : [];
       emit(FeedScreenState(users: state.users, posts: posts, isLoading: false));

@@ -4,15 +4,21 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:instagram_clone/bloc/feed_screen/feed_screen_bloc.dart';
+import 'package:instagram_clone/bloc/feed/feed_screen/feed_screen_bloc.dart';
 import 'package:instagram_clone/models/user.dart';
 import 'package:instagram_clone/models/post.dart';
 import 'package:video_player/video_player.dart';
 import 'package:visibility_detector/visibility_detector.dart';
-
-import '../bloc/feed_screen/image_carousel_bloc.dart';
-import '../bloc/feed_screen/video_post_bloc.dart';
+import '../bloc/feed/feed_screen/feed_screen_event.dart';
+import '../bloc/feed/feed_screen/feed_screen_state.dart';
+import '../bloc/feed/image_carousel/image_carousel_bloc.dart';
+import '../bloc/feed/image_carousel/image_carousel_event.dart';
+import '../bloc/feed/image_carousel/image_carousel_state.dart';
+import '../bloc/feed/video_post/video_post_bloc.dart';
+import '../bloc/feed/video_post/video_post_event.dart';
+import '../bloc/feed/video_post/video_post_state.dart';
 import 'chat_screen.dart';
+
 
 class FeedScreen extends StatelessWidget {
   const FeedScreen({super.key});
@@ -25,7 +31,7 @@ class FeedScreen extends StatelessWidget {
         title: Image.asset("assets/images/insta_logo.png", height: 50.h),
         actions: [
           IconButton(onPressed: () {}, icon: Icon(Icons.favorite_border)),
-          SizedBox(width: 5),
+          SizedBox(width: 5.w),
           IconButton(
             onPressed: () {
               Navigator.push(context,
@@ -69,7 +75,7 @@ class FeedScreen extends StatelessWidget {
                             (index) {
                           User user = state.users[index];
                           return Container(
-                            padding: EdgeInsets.all(10),
+                            padding: EdgeInsets.all(10.h),
                             child: Column(
                               children: [
                                 if (index == 0)
